@@ -1,12 +1,4 @@
 {
-  "devDependencies": {
-    "@openzeppelin/contracts": "^4.6.0",
-    "@openzeppelin/contracts-upgradeable": "^4.6.0",
-    "abdk-libraries-solidity": "^3.0.0",
-    "prettier": "^2.6.2",
-    "prettier-plugin-solidity": "^1.0.0-beta.19",
-    "truffle-assertions": "^0.9.2"
-  },
   "name": "idle-flyff-online",
   "version": "1.0.0",
   "main": "truffle-config.js",
@@ -17,5 +9,16 @@
   },
   "author": "eD3ath",
   "license": "MIT",
-  "description": "Idle Art Online is a blockchain game inspired by Sword Art Online, a fantasy MMORPG anime. Idle Art Online is a web based idle NFT game. The goal of the game is to reward players after staking their NFTs."
+  "description": "Idle Art Online is a blockchain game inspired by Sword Art Online, a fantasy MMORPG anime. Idle Art Online is a web based idle NFT game. The goal of the game is to reward players after staking their NFTs.",  
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.6.0",
+    "@openzeppelin/contracts-upgradeable": "^4.6.0",
+    "abdk-libraries-solidity": "^3.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.6.2",
+    "prettier-plugin-solidity": "^1.0.0-beta.19",
+    "truffle": "^5.5.18",
+    "truffle-assertions": "^0.9.2"
+  }
 }
