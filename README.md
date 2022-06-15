@@ -6,3 +6,9 @@ A blockchain game inspired by Sword Art Online, a fantasy MMORPG anime.  Idle Ar
 ```
 $ npm install
 ```
+
+### Test
+
+```
+$ npm run test
+```
