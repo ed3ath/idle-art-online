@@ -32,7 +32,7 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 		uint8 eyeColor;
 		uint8 skinColor;
 	}
-	
+
 	// constants
 	bytes32 public constant GAME_MASTER = keccak256("GAME_MASTER");
 	uint256 public constant VAR_FREE = 1;
@@ -124,11 +124,16 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 
 		uint256 seed = RandomUtil.getRandomSeed(keyHash, minter, avatarId);
 
-		for(uint16 i = 0; i < 6; i++){
-			attributes[avatarId][i] = Common._getRandomStat(_minStat, _maxStat, seed, i);
+		for (uint16 i = 0; i < 6; i++) {
+			attributes[avatarId][i] = Common._getRandomStat(
+				_minStat,
+				_maxStat,
+				seed,
+				i
+			);
 		}
 
-		for(uint16 i = 0; i < maxEquipmentSlot; i++){
+		for (uint16 i = 0; i < maxEquipmentSlot; i++) {
 			equipments[avatarId][i] = 0;
 		}
 
@@ -149,30 +154,7 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 
 		_safeMint(minter, avatarId);
 
-		emit NewAvatar(
-			minter,
-			avatarId,
-			gender,
-			rarity,
-			block.timestamp
-		);
-	}
-
-	function _gainExp(uint256 avatarId, uint256 exp) internal {
-		Avatar storage avatar = avatars[avatarId];
-		if (avatar.level < maxLevel) {
-			uint256 newExp = avatar.exp.add(exp);
-			uint256 requiredToLevel = _getExpRequired(avatar.level);
-			while (newExp >= requiredToLevel) {
-				newExp = newExp - requiredToLevel;
-				avatar.level += 1;
-				emit LevelUp(ownerOf(avatarId), avatarId, avatar.level);
-				if (avatar.level < maxLevel)
-					requiredToLevel = _getExpRequired(avatar.level);
-				else newExp = 0;
-			}
-			avatar.exp = uint256(newExp);
-		}
+		emit NewAvatar(minter, avatarId, gender, rarity, block.timestamp);
 	}
 
 	function _getExpRequired(uint16 level) internal pure returns (uint256) {
@@ -232,14 +214,7 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 			Common._getRandomGene(seed, 5, 5),
 			Common._getRandomGene(seed, 6, 5)
 		);
-		_mintAvatar(
-			minter,
-			avatarId,
-			rarity,
-			gender,
-			genes,
-			0
-		);
+		_mintAvatar(minter, avatarId, rarity, gender, genes, 0);
 	}
 
 	function mintFreeAvatar(address minter) external restricted {
@@ -256,35 +231,49 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 			Common._getRandomGene(seed, 5, 5),
 			Common._getRandomGene(seed, 6, 5)
 		);
-		_mintAvatar(
-			minter,
-			avatarId,
-			rarity,
-			gender,
-			genes,
-			1
-		);
+		_mintAvatar(minter, avatarId, rarity, gender, genes, 1);
 	}
 
 	function getAvatar(uint256 avatarId) public view returns (Avatar memory) {
 		return avatars[avatarId];
 	}
 
-	function getAttributes(uint256 avatarId) public view returns (uint256[] memory) {
+	function getAttributes(uint256 avatarId)
+		public
+		view
+		returns (uint256[] memory)
+	{
 		uint256[] memory attribute = new uint256[](6);
-		for(uint16 i = 0; i < 6; i++) {
+		for (uint16 i = 0; i < 6; i++) {
 			attribute[i] = attributes[avatarId][i];
 		}
 		return attribute;
 	}
 
-	function setAttributes(uint256 avatarId, uint16 attributeId, uint256 value) external restricted {
+	function setAttributes(
+		uint256 avatarId,
+		uint16 attributeId,
+		uint256 value
+	) external restricted {
 		attributes[avatarId][attributeId] = value;
 	}
 
 	function gainExp(uint256 avatarId, uint256 exp) external restricted {
 		require(exp > 0, "No exp to gain.");
-		_gainExp(avatarId, exp);
+		Avatar storage avatar = avatars[avatarId];
+		if (avatar.level < maxLevel) {
+			uint256 newExp = avatar.exp.add(exp);
+			uint256 requiredToLevel = _getExpRequired(avatar.level);
+			while (newExp >= requiredToLevel) {
+				newExp = newExp - requiredToLevel;
+				avatar.level += 1;
+				emit LevelUp(ownerOf(avatarId), avatarId, avatar.level);
+				if (avatar.level < maxLevel)
+					requiredToLevel = _getExpRequired(avatar.level);
+				else newExp = 0;
+			}
+			avatar.exp = uint256(newExp);
+		}
 	}
 
 	function setMaxLevel(uint16 max) external restricted {
@@ -295,25 +284,45 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 		maxEquipmentSlot = max;
 	}
 
-	function getNftVar(uint256 avatarId, uint256 nftVar) public view returns(uint256) {
-        return nftVars[avatarId][nftVar];
-    }
+	function getNftVar(uint256 avatarId, uint256 nftVar)
+		public
+		view
+		returns (uint256)
+	{
+		return nftVars[avatarId][nftVar];
+	}
 
-    function setNftVar(uint256 avatarId, uint256 nftVar, uint256 value) external restricted {
-        nftVars[avatarId][nftVar] = value;
-    }
+	function setNftVar(
+		uint256 avatarId,
+		uint256 nftVar,
+		uint256 value
+	) external restricted {
+		nftVars[avatarId][nftVar] = value;
+	}
 
-	function setEquipment(uint256 avatarId, uint8 slot, uint256 itemId) external restricted {
+	function setEquipment(
+		uint256 avatarId,
+		uint8 slot,
+		uint256 itemId
+	) external restricted {
 		equipments[avatarId][slot] = itemId;
 	}
 
-	function getEquipment(uint256 avatarId, uint8 slot) public view returns(uint256) {
+	function getEquipment(uint256 avatarId, uint8 slot)
+		public
+		view
+		returns (uint256)
+	{
 		return equipments[avatarId][slot];
 	}
 
-	function getEquipments(uint256 avatarId) public view returns(uint256[] memory) {
+	function getEquipments(uint256 avatarId)
+		public
+		view
+		returns (uint256[] memory)
+	{
 		uint256[] memory items = new uint256[](maxEquipmentSlot);
-		for(uint i = 0; i < maxEquipmentSlot; i++) {
+		for (uint256 i = 0; i < maxEquipmentSlot; i++) {
 			items[i] = equipments[avatarId][i];
 		}
 		return items;
