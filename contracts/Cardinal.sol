@@ -36,6 +36,7 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 	mapping(uint256 => mapping(uint256 => uint256)) parties;
 	mapping(uint256 => mapping(uint256 => uint256)) guilds;
 	mapping(uint256 => uint64) adventureTimestamp;
+	mapping(uint256 => uint256) attributePoints;
 
 	// modifiers
 	modifier isAdmin() {
@@ -57,6 +58,11 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		_oncePerBlock(user);
 		_;
 	}
+	
+	modifier avatarOwner(uint256 id) {
+		require(avatars.ownerOf(id) == msg.sender, "You don't own this avatar");
+		_;
+	}
 
 	// private functions
 
@@ -65,8 +71,7 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		lastBlockNumberCalled[user] = block.number;
 	}
 
-	function _adventure(uint256 avatarId) internal {
-		require(avatars.ownerOf(avatarId) == msg.sender, "You don't own this avatar");
+	function _adventure(uint256 avatarId) internal avatarOwner(avatarId) {
 		require(avatars.getNftVar(avatarId, 2) == 0, "Avatar is not available");
 		require(uint64(block.timestamp) > adventureTimestamp[avatarId], "Avatar is currently tired");		
 	}
@@ -123,17 +128,47 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 
 	}
 
-	function createNewSkill(string memory name, uint8 flag) public isAdmin {
+	function createNewSkill(string memory name, uint8 flag) public restricted {
 		skills.createSkill(name, flag);
 	}
 
-	function setSkillRequirement(uint256 skillId, uint16 attrIndex, uint256 value) public isAdmin {
-		require(skillId > 0 && skillId < skills.getSkillsLength(), 'Skill not available.');
+	function addAttributePoints(uint256 avatarId, uint256 value) public restricted {
+		attributePoints[avatarId] += value;
+	}
+
+	function setSkillRequirement(uint256 skillId, uint16 attrIndex, uint256 value) public restricted {
+		require(skillId > 0 && skillId < skills.getSkillsLength(), "Skill not available");
         skills.setSkillRequirement(skillId, attrIndex, value);
     }
 
-	function learnSkill(uint256 avatarId, uint256 skillId) public isAdmin {
-		require(skillId > 0 && skillId < skills.getSkillsLength(), 'Skill not available.');
+	function setAttributes(uint256 avatarId, uint16 attributeId, uint256 value) public onlyNonContract avatarOwner(avatarId) {
+		require(attributePoints[avatarId] >= value, "Not enough attribute points");
+		attributePoints[avatarId] -= value;
+		avatars.setAttributes(avatarId, attributeId, value);
+	}
+
+	// this should be game master only
+	function learnSkill(uint256 avatarId, uint256 skillId) public avatarOwner(avatarId) {
+		require(skillId > 0 && skillId < skills.getSkillsLength(), "Skill not available");
+		uint8 exists = 0;
+		Skills.Skill[] memory avatarSkills = skills.getAvatarSkills(avatarId);
+		for(uint i; i < avatarSkills.length; i++) {
+			if (avatarSkills[i].skillId == skillId) {
+				exists = 1;
+			}
+		}
+		require(exists == 0, "You already have this skill");
+		uint256[] memory skillRequirement = skills.getSkillRequirements(skillId);
+		uint256[] memory attributes = avatars.getAttributes(avatarId);
+		uint8 canLearn = 1;
+		for(uint i; i < skillRequirement.length; i++ ){
+			if (skillRequirement[i] > 0) {
+				if (attributes[i] < skillRequirement[i]) {
+					canLearn = 0;
+				}
+			}
+		}
+		require(canLearn > 0, "You don't meet the requirements");
 		skills.learnSkill(avatarId, skillId);
 	}
 }

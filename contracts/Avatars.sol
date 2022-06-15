@@ -266,8 +266,8 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 		);
 	}
 
-	function getAvatar(uint256 avatarId) public view returns (Avatar memory, uint256[] memory) {
-		return (avatars[avatarId], getAttributes(avatarId));
+	function getAvatar(uint256 avatarId) public view returns (Avatar memory) {
+		return avatars[avatarId];
 	}
 
 	function getAttributes(uint256 avatarId) public view returns (uint256[] memory) {
@@ -276,6 +276,10 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 			attribute[i] = attributes[avatarId][i];
 		}
 		return attribute;
+	}
+
+	function setAttributes(uint256 avatarId, uint16 attributeId, uint256 value) external restricted {
+		attributes[avatarId][attributeId] = value;
 	}
 
 	function gainExp(uint256 avatarId, uint256 exp) external restricted {
@@ -295,11 +299,11 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
         return nftVars[avatarId][nftVar];
     }
 
-    function setNftVar(uint256 avatarId, uint256 nftVar, uint256 value) public restricted {
+    function setNftVar(uint256 avatarId, uint256 nftVar, uint256 value) external restricted {
         nftVars[avatarId][nftVar] = value;
     }
 
-	function setEquipment(uint256 avatarId, uint8 slot, uint256 itemId) public restricted {
+	function setEquipment(uint256 avatarId, uint8 slot, uint256 itemId) external restricted {
 		equipments[avatarId][slot] = itemId;
 	}
 
