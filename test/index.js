@@ -3,9 +3,10 @@ const Oracle = artifacts.require("BasicPriceOracle");
 const Cardinal = artifacts.require("Cardinal");
 const Avatars = artifacts.require("Avatars");
 const Skills = artifacts.require("Skills");
+const Events = artifacts.require("Events");
 
 contract("Idle Art Online", async (accounts) => {
-  let corToken, oracle, cardinal, avatars, skills, storeAvatars = [], storeSkills = [];
+  let corToken, oracle, cardinal, avatars, skills, events, storeAvatars = [], storeSkills = [];
 
   const keyHash = "0508bed9fd4f78f10478c995115fdf0b087b42d661e8c6f27710c035187b029b";
 
@@ -15,15 +16,18 @@ contract("Idle Art Online", async (accounts) => {
     cardinal = await Cardinal.new();
     avatars = await Avatars.new();
     skills = await Skills.new();
+    events = await Events.new();
 
     await corToken.transferFrom(corToken.address, accounts[0], web3.utils.toWei("1", "kether"));
     await oracle.initialize();
     await oracle.setCurrentPrice(10);
     await avatars.initialize(keyHash);
     await skills.initialize(keyHash);
-    await cardinal.initialize(corToken.address, oracle.address, avatars.address, skills.address);
+    await events.initialize(keyHash);
+    await cardinal.initialize(corToken.address, oracle.address, avatars.address, skills.address, events.address);
     await avatars.grantRole(await avatars.GAME_MASTER(), cardinal.address);
     await skills.grantRole(await skills.GAME_MASTER(), cardinal.address);
+    await events.grantRole(await events.GAME_MASTER(), cardinal.address);
  
     avatars.allEvents({}).on('data', async (result) => {
       if (result.event === 'NewAvatar') {
@@ -161,6 +165,44 @@ contract("Idle Art Online", async (accounts) => {
     }catch(e) {
       assert.ok(e.message.includes("You don't meet the requirements"));
     }
+  });
+
+  it('Avatar 1 should do an adventure for 1 hour using Account 1', async () => {
+    await cardinal.doAdventure(storeAvatars[0].avatarId, 1, 1, {
+      from: accounts[1]
+    });
+  });
+
+  it('Avatar 1 should fail to do another adventure for 1 hour using Account 1', async () => {
+    try {
+      await cardinal.doAdventure(storeAvatars[0].avatarId, 1, 1, {
+        from: accounts[1]
+      });
+    }catch(e) {
+      assert.ok(e.message.includes("Avatar is not available"));
+    }
+  });
+
+  it('Account 0 should create event for adventure 1', async () => {
+    await cardinal.createAdventureEvent(0, 1, 1000, 2000, {
+      from: accounts[0]
+    });
+  });
+
+  it('Account 1 should fail to create event for adventure 0', async () => {
+    try {
+      await cardinal.createAdventureEvent(0, 1, 1000, 2000, {
+        from: accounts[1]
+      });
+    }catch(e) {
+      assert.ok(e.message.includes("Not game master"));
+    }
+  });
+
+  it('Cor reward should be equal to 1000 and exp reward should be equal to 2000 from 1st event of adventure 0', async () => {
+    const advEvents = await cardinal.getAdventureEvents(0);
+    const { rewardCor, rewardExp } = await events.getEvent(Number(advEvents[0]));
+    assert.ok(Number(rewardCor) === 1000 && Number(rewardExp) === 2000);
   });
   
 });

@@ -20,7 +20,7 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 		uint16 level;
 		uint256 exp;
 		AvatarGenes genes;
-		uint256 timestamp;
+		uint64 timestamp;
 		address minter;
 	}
 
@@ -145,7 +145,7 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 				0,
 				0,
 				genes,
-				block.timestamp,
+				uint64(block.timestamp),
 				minter
 			)
 		);

@@ -33,8 +33,8 @@ contract Skills is Initializable, AccessControlUpgradeable {
 	mapping(uint256 => Skill[]) avatarSkills; // avatarId => Skills
 
 	// events
-	event NewSkill(uint256 skillId, string name, uint8 flag, uint256 timestamp);
-	event SkillLearned(uint256 avatarId, uint256 skillId, uint256 timestamp);
+	event NewSkill(uint256 skillId, string name, uint8 flag, uint64 timestamp);
+	event SkillLearned(uint256 avatarId, uint256 skillId, uint64 timestamp);
 
 	// modifiers
 	modifier isAdmin() {
@@ -65,7 +65,7 @@ contract Skills is Initializable, AccessControlUpgradeable {
 			skillId += 1;
 		}
 		skills.push(Skill(skillId, name, flag));
-		emit NewSkill(skillId, name, flag, block.timestamp);
+		emit NewSkill(skillId, name, flag, uint64(block.timestamp));
 	}
 
 	function getSkillsLength() public view returns (uint256) {
@@ -98,7 +98,7 @@ contract Skills is Initializable, AccessControlUpgradeable {
 
 	function learnSkill(uint256 avatarId, uint256 skillId) external restricted {
 		avatarSkills[avatarId].push(skills[skillId]);
-		emit SkillLearned(avatarId, skillId, block.timestamp);
+		emit SkillLearned(avatarId, skillId, uint64(block.timestamp));
 	}
 
 	function getAvatarSkills(uint256 avatarId)

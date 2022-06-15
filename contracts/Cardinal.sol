@@ -9,6 +9,7 @@ import "./interfaces/IPriceOracle.sol";
 import "./Util.sol";
 import "./Avatars.sol";
 import "./Skills.sol";
+import "./Events.sol";
 
 contract Cardinal is Initializable, AccessControlUpgradeable {
 	using ABDKMath64x64 for int128;
@@ -17,16 +18,30 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 	using SafeMath for uint8;
 	using SafeERC20 for IERC20;
 
+	// struct
+	struct Adventure {
+		uint256 advId;
+		uint256 avatarId;
+		uint64 duration;
+		uint64 timestamp;
+	}
+
 	// constants
 	bytes32 public constant GAME_MASTER = keccak256("GAME_MASTER");
 	uint256 public constant STAKING_COOLDOWN = 1; // 0 (hour) | 1 (day) | 2 (week) | 3 (month)
+	uint8 public constant MODE_ADVENTURE = 1;
+	uint8 public constant MODE_SOLO = 2;
+	uint8 public constant MODE_PARTY = 3;
+	uint8 public constant MODE_GUILD = 4;
 
 	// variables
+	Adventure[] public adventures;
 	IERC20 public corToken;
 	IPriceOracle public priceOracle;
 
 	Avatars public avatars;
 	Skills public skills;
+	Events public events;
 
 	int128 public mintAvatarFee;
 	uint8 public maxOwnedAvatar = 8;
@@ -38,9 +53,17 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 	mapping(uint256 => mapping(uint256 => uint256)) gameVars;
 	mapping(uint256 => mapping(uint256 => uint256)) parties;
 	mapping(uint256 => mapping(uint256 => uint256)) guilds;
-	mapping(uint256 => uint64) adventureTimestamp;
 	mapping(uint256 => uint64) avatarCooldowns;
 	mapping(uint256 => uint256) attributePoints;
+	mapping(uint256 => uint256[]) adventureEvents;
+
+	// events
+	event NewAdventure(
+		uint256 advId,
+		uint256 avatarId,
+		uint64 duration,
+		uint64 timestamp
+	);
 
 	// modifiers
 	modifier isAdmin() {
@@ -82,18 +105,21 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 	}
 
 	// private functions
-
 	function _oncePerBlock(address user) internal {
 		require(lastBlockNumberCalled[user] < block.number, "OCB");
 		lastBlockNumberCalled[user] = block.number;
 	}
 
-	function _durationToSeconds(uint8 durationType, uint32 duration) internal pure returns(uint64) {
+	function _durationToSeconds(uint8 durationType, uint32 duration)
+		internal
+		pure
+		returns (uint64)
+	{
 		require(durationType > 1 && durationType < 5, "Invalid duration type");
 		uint64 mult = 0;
 		if (durationType == 1) mult = 3600;
-		else if(durationType == 2) mult = 86400;
-		else if(durationType == 3) mult = 604800;
+		else if (durationType == 2) mult = 86400;
+		else if (durationType == 3) mult = 604800;
 		else mult = 2592000;
 		return uint64(duration * mult);
 	}
@@ -103,7 +129,8 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		IERC20 _corToken,
 		IPriceOracle _priceOracle,
 		Avatars _avatars,
-		Skills _skills
+		Skills _skills,
+		Events _events
 	) public initializer {
 		__AccessControl_init();
 
@@ -115,6 +142,7 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 
 		avatars = _avatars;
 		skills = _skills;
+		events = _events;
 
 		mintAvatarFee = ABDKMath64x64.divu(10, 1);
 	}
@@ -136,7 +164,11 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		avatars.mintRandomAvatar(msg.sender);
 	}
 
-	function getStakingCooldown(uint8 durationType) public view returns(uint64){
+	function getStakingCooldown(uint8 durationType)
+		public
+		view
+		returns (uint64)
+	{
 		return uint64(gameVars[STAKING_COOLDOWN][durationType]);
 	}
 
@@ -150,17 +182,53 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		freeClaims[msg.sender] = 1;
 	}
 
-	function doAdventure(uint256 avatarId, uint8 durationType, uint32 duration)
-		public
-		onlyNonContract
-		avatarOwner(avatarId)
-	{
+	function doAdventure(
+		uint256 avatarId,
+		uint8 durationType,
+		uint32 duration
+	) public onlyNonContract avatarOwner(avatarId) returns (uint256) {
 		require(avatars.getNftVar(avatarId, 2) == 0, "Avatar is not available");
 		require(
-			uint64(block.timestamp) > adventureTimestamp[avatarId],
+			uint64(block.timestamp) > avatarCooldowns[avatarId],
 			"Avatar is currently tired"
 		);
+		uint64 advDuration = getStakingCooldown(durationType) * duration;
+		uint256 advId = adventures.length;
 		avatars.setNftVar(avatarId, avatars.VAR_STATUS(), 1);
+		adventures.push(
+			Adventure(advId, avatarId, advDuration, uint64(block.timestamp))
+		);
+		avatarCooldowns[avatarId] = uint64(block.timestamp + advDuration);
+		emit NewAdventure(
+			advId,
+			avatarId,
+			advDuration,
+			uint64(block.timestamp)
+		);
+		return advId;
+	}
+
+	function createAdventureEvent(
+		uint256 advId,
+		uint8 eventType,
+		uint256 rewardCor,
+		uint256 rewardExp
+	) public restricted {
+		uint256 eventId = events.createEvent(
+			MODE_ADVENTURE,
+			eventType,
+			rewardCor,
+			rewardExp
+		);
+		adventureEvents[advId].push(eventId);
+	}
+
+	function getAdventureEvents(uint256 advId)
+		public
+		view
+		returns (uint256[] memory)
+	{
+		return adventureEvents[advId];
 	}
 
 	function createNewSkill(string memory name, uint8 flag) public restricted {

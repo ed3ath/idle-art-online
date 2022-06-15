@@ -9,7 +9,7 @@
   },
   "author": "eD3ath",
   "license": "MIT",
-  "description": "Idle Art Online is a blockchain game inspired by Sword Art Online, a fantasy MMORPG anime. Idle Art Online is a web based idle NFT game. The goal of the game is to reward players after staking their NFTs.",  
+  "description": "Idle Art Online is a blockchain game inspired by Sword Art Online, a fantasy MMORPG anime. Idle Art Online is a web based idle NFT game. The goal of the game is to reward players after staking their NFTs.",
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
     "@openzeppelin/contracts-upgradeable": "^4.6.0",
