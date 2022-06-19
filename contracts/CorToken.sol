@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: None
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -10,11 +10,11 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * `ERC20` functions.
  * Based on https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contracts/examples/SimpleToken.sol
  */
-contract CorTest is ERC20 {
+contract CorToken is ERC20 {
 	/**
 	 * @dev Constructor that gives msg.sender all of existing tokens.
 	 */
-	constructor() ERC20("Idle Art Online Cor", "IAOCOR") {
+	constructor() public ERC20("Cor Token", "ICOR") {
 		_mint(address(this), 1000000 * (10**uint256(decimals())));
 		_approve(address(this), msg.sender, totalSupply());
 	}

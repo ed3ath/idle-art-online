@@ -158,7 +158,7 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 	}
 
 	function _getExpRequired(uint16 level) internal pure returns (uint256) {
-		return uint256(level.mul(50).mul(level.sub(1)));
+		return uint256(level.mul(50).mul(level.sub(1))); // level * 50 * (level + 1)
 	}
 
 	// public function
@@ -236,6 +236,18 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 
 	function getAvatar(uint256 avatarId) public view returns (Avatar memory) {
 		return avatars[avatarId];
+	}
+
+	function getAvatars(address user) public view returns (uint256[] memory) {
+		uint256[] memory result = new uint256[](balanceOf(user));
+		uint256 counter = 0;
+		for (uint256 i = 1; i < avatars.length; i++) {
+			if (ownerOf(i) == user) {
+				result[counter] = i;
+				counter++;
+			}
+		}
+		return result;
 	}
 
 	function getAttributes(uint256 avatarId)

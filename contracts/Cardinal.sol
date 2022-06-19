@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IPriceOracle.sol";
 import "./Util.sol";
 import "./Avatars.sol";
@@ -16,7 +16,7 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 	using SafeMath for uint256;
 	using SafeMath for uint32;
 	using SafeMath for uint8;
-	using SafeERC20 for IERC20;
+	using SafeERC20Upgradeable for IERC20;
 
 	// struct
 	struct Adventure {
@@ -28,7 +28,12 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 
 	// constants
 	bytes32 public constant GAME_MASTER = keccak256("GAME_MASTER");
-	uint256 public constant STAKING_COOLDOWN = 1; // 0 (hour) | 1 (day) | 2 (week) | 3 (month)
+
+	uint256 public constant STAKING_COOLDOWN = 1; // 1 (hour) | 2 (day) | 3 (week) | 4 (month)
+
+	uint256 public constant VAR_REWARD_COR = 10; // 1 (adventure) | 2 (solo dungeon) | 3 (party dungeon) | 4 (boss room)
+	uint256 public constant VAR_REWARD_EXP = 11; // 1 (adventure) | 2 (solo dungeon) | 3 (party dungeon) | 4 (boss room)
+
 	uint8 public constant MODE_ADVENTURE = 1;
 	uint8 public constant MODE_SOLO = 2;
 	uint8 public constant MODE_PARTY = 3;
@@ -43,8 +48,10 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 	Skills public skills;
 	Events public events;
 
+	string private keyHash;
+
 	int128 public mintAvatarFee;
-	uint8 public maxOwnedAvatar = 8;
+	uint8 public maxOwnedAvatar;
 
 	// mappings
 	mapping(address => uint256) lastBlockNumberCalled;
@@ -67,17 +74,17 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 
 	// modifiers
 	modifier isAdmin() {
-		require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "Not admin");
+		require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "NOA"); //Not admin
 		_;
 	}
 
 	modifier restricted() {
-		require(hasRole(GAME_MASTER, msg.sender), "Not game master");
+		require(hasRole(GAME_MASTER, msg.sender), "NGM"); //Not game master
 		_;
 	}
 
 	modifier onlyNonContract() {
-		require(tx.origin == msg.sender, "ONC");
+		require(tx.origin == msg.sender, "ONC"); //Only non contract
 		_;
 	}
 
@@ -87,20 +94,20 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 	}
 
 	modifier avatarOwner(uint256 id) {
-		require(avatars.ownerOf(id) == msg.sender, "You don't own this avatar");
+		require(avatars.ownerOf(id) == msg.sender, "NAO"); //Not avatar owner
 		_;
 	}
 
 	modifier skillAvailable(uint256 skillId) {
 		require(
 			skillId > 0 && skillId < skills.getSkillsLength(),
-			"Skill not available"
+			"SNA" // Skill not available
 		);
 		_;
 	}
 
 	modifier validAttribute(uint256 attributeId) {
-		require(attributeId >= 0 && attributeId < 6, "Unknown attribute");
+		require(attributeId >= 0 && attributeId < 6, "UNA"); //Unknown attribute
 		_;
 	}
 
@@ -115,7 +122,7 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		pure
 		returns (uint64)
 	{
-		require(durationType > 1 && durationType < 5, "Invalid duration type");
+		require(durationType > 0 && durationType < 5, "IDT"); //Invalid duration type
 		uint64 mult = 0;
 		if (durationType == 1) mult = 3600;
 		else if (durationType == 2) mult = 86400;
@@ -124,8 +131,82 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		return uint64(duration * mult);
 	}
 
+	function _genPredefinedAdventureEvents(
+		uint256 advId,
+		uint256 seed,
+		uint64 duration
+	) internal {
+		uint16 eventCounts = uint8(
+			RandomUtil.randomSeededMinMax(duration / 1800, duration / 900, seed)
+		);
+
+		for (uint8 i = 0; i < eventCounts; i++) {
+			uint256 rewardCor = uint256(
+				RandomUtil.randomSeededMinMax(
+					uint256(
+						gameVars[VAR_REWARD_COR][MODE_ADVENTURE].div(100).mul(
+							30
+						)
+					),
+					uint256(gameVars[VAR_REWARD_COR][MODE_ADVENTURE]),
+					RandomUtil.combineSeeds(seed, i + 1)
+				)
+			);
+			uint256 rewardExp = uint256(
+				RandomUtil.randomSeededMinMax(
+					uint32(
+						gameVars[VAR_REWARD_EXP][MODE_ADVENTURE].div(100).mul(
+							30
+						)
+					),
+					uint32(gameVars[VAR_REWARD_EXP][MODE_ADVENTURE]),
+					RandomUtil.combineSeeds(seed, i + 2)
+				)
+			);
+			uint8 eventType = RandomUtil.randomSeededMinMax(
+				0,
+				100,
+				RandomUtil.combineSeeds(seed, i + 3)
+			) < 50
+				? 0
+				: 1;
+			uint64 timestamp = uint64(
+				RandomUtil.randomSeededMinMax(
+					120,
+					duration,
+					RandomUtil.combineSeeds(seed, i + 4)
+				)
+			);
+			_createAdventureEvent(
+				advId,
+				eventType,
+				rewardCor,
+				rewardExp,
+				uint64(block.timestamp + timestamp)
+			);
+		}
+	}
+
+	function _createAdventureEvent(
+		uint256 advId,
+		uint8 eventType,
+		uint256 rewardCor,
+		uint256 rewardExp,
+		uint64 timestamp
+	) internal {
+		uint256 eventId = events.createEvent(
+			MODE_ADVENTURE,
+			eventType,
+			rewardCor,
+			rewardExp,
+			timestamp
+		);
+		adventureEvents[advId].push(eventId);
+	}
+
 	// public functions
 	function initialize(
+		string memory _keyHash,
 		IERC20 _corToken,
 		IPriceOracle _priceOracle,
 		Avatars _avatars,
@@ -137,12 +218,16 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		_setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
 		_setupRole(GAME_MASTER, msg.sender);
 
+		keyHash = _keyHash;
+
 		corToken = _corToken;
 		priceOracle = _priceOracle;
 
 		avatars = _avatars;
 		skills = _skills;
 		events = _events;
+
+		maxOwnedAvatar = 8;
 
 		mintAvatarFee = ABDKMath64x64.divu(10, 1);
 	}
@@ -153,10 +238,10 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 
 	function mintAvatar() public onlyNonContract oncePerBlock(msg.sender) {
 		uint256 corAmount = usdToCor(mintAvatarFee);
-		require(corToken.balanceOf(msg.sender) >= corAmount, "Not enough cor");
+		require(corToken.balanceOf(msg.sender) >= corAmount, "NEC"); //Not enough cor
 		require(
 			avatars.balanceOf(msg.sender) < maxOwnedAvatar,
-			"Maximum number of avatars reached"
+			"MNA" //Maximum number of avatars reached
 		);
 
 		corToken.transferFrom(msg.sender, address(this), corAmount);
@@ -173,10 +258,10 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 	}
 
 	function mintFreeAvatar() public onlyNonContract oncePerBlock(msg.sender) {
-		require(freeClaims[msg.sender] == 0, "Already claimed free avatar");
+		require(freeClaims[msg.sender] == 0, "ACF"); //Already claimed free avatar
 		require(
 			avatars.balanceOf(msg.sender) < maxOwnedAvatar,
-			"Maximum number of avatars reached"
+			"MNA" //Maximum number of avatars reached
 		);
 		avatars.mintFreeAvatar(msg.sender);
 		freeClaims[msg.sender] = 1;
@@ -187,18 +272,21 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		uint8 durationType,
 		uint32 duration
 	) public onlyNonContract avatarOwner(avatarId) returns (uint256) {
-		require(avatars.getNftVar(avatarId, 2) == 0, "Avatar is not available");
+		require(avatars.getNftVar(avatarId, 2) == 0, "ANA"); //Avatar is not available
 		require(
 			uint64(block.timestamp) > avatarCooldowns[avatarId],
-			"Avatar is currently tired"
+			"ACT" //Avatar is currently tired
 		);
-		uint64 advDuration = getStakingCooldown(durationType) * duration;
+		uint64 advDuration = _durationToSeconds(durationType, duration);
+		require(advDuration <= 604800, "DL7"); //Duration should not be longer than 7 days
 		uint256 advId = adventures.length;
+		uint256 seed = RandomUtil.getRandomSeed(keyHash, msg.sender, advId);
 		avatars.setNftVar(avatarId, avatars.VAR_STATUS(), 1);
 		adventures.push(
 			Adventure(advId, avatarId, advDuration, uint64(block.timestamp))
 		);
 		avatarCooldowns[avatarId] = uint64(block.timestamp + advDuration);
+		_genPredefinedAdventureEvents(advId, seed, advDuration);
 		emit NewAdventure(
 			advId,
 			avatarId,
@@ -206,21 +294,6 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 			uint64(block.timestamp)
 		);
 		return advId;
-	}
-
-	function createAdventureEvent(
-		uint256 advId,
-		uint8 eventType,
-		uint256 rewardCor,
-		uint256 rewardExp
-	) public restricted {
-		uint256 eventId = events.createEvent(
-			MODE_ADVENTURE,
-			eventType,
-			rewardCor,
-			rewardExp
-		);
-		adventureEvents[advId].push(eventId);
 	}
 
 	function getAdventureEvents(uint256 advId)
@@ -257,7 +330,7 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 	) public onlyNonContract avatarOwner(avatarId) validAttribute(attributeId) {
 		require(
 			attributePoints[avatarId] >= value,
-			"Not enough attribute points"
+			"NAA" //Not enough attribute points
 		);
 		avatars.setAttributes(avatarId, attributeId, value);
 		attributePoints[avatarId] -= value;
@@ -275,7 +348,7 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 				exists = 1;
 			}
 		}
-		require(exists == 0, "You already have this skill");
+		require(exists == 0, "AHS"); //You already have this skill
 		uint256[] memory skillRequirement = skills.getSkillRequirements(
 			skillId
 		);
@@ -288,7 +361,23 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 				}
 			}
 		}
-		require(canLearn > 0, "You don't meet the requirements");
+		require(canLearn > 0, "NMR"); //You don't meet the requirements
 		skills.learnSkill(avatarId, skillId);
+	}
+
+	function setMaxRewardCor(uint8 mode, uint256 amount) public restricted {
+		gameVars[VAR_REWARD_COR][mode] = amount;
+	}
+
+	function getMaxRewardCor(uint8 mode) public view returns (uint256) {
+		return gameVars[VAR_REWARD_COR][mode];
+	}
+
+	function setMaxRewardExp(uint8 mode, uint256 amount) public restricted {
+		gameVars[VAR_REWARD_EXP][mode] = amount;
+	}
+
+	function getMaxRewardExp(uint8 mode) public view returns (uint256) {
+		return gameVars[VAR_REWARD_EXP][mode];
 	}
 }
