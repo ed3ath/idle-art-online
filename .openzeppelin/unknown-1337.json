@@ -1,90 +1,60 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0x8C637BFabB4b3a83B3057e008eB72bf13265Afa1",
-    "txHash": "0x28de3cc891b4eca9a5077a09f866ad959bf075157ccbad065d0e77532d671688"
+    "address": "0x959c6a9Ad7dc622e86A1Dc564576E12686883C1d",
+    "txHash": "0x67b87ed42f09a6a02863784d4fb354baa6c9147bc8cd2097a28e48aaee48a41e"
   },
   "proxies": [
     {
-      "address": "0x4CFbD70A06477882025895f29DB044450fdF7425",
-      "txHash": "0x7de4d89e9db03d26fac21bdc58916f7ff297be11b3386e6122a88e6db337cf37",
+      "address": "0x4182C05f51214938F758DfAbE485Ac4718eaa3a1",
+      "txHash": "0xf1c9e09d6cd513aa1bcf17679c6c95471671733decc1e9f10116c1708c6424d4",
       "kind": "transparent"
     },
     {
-      "address": "0x1ffa0c387F5Ca023438d85D431c948CB36172730",
-      "txHash": "0x73ff99464ea7fc7d6e848633e07bc826c208e89f58ea94282aba362f0ec3d956",
+      "address": "0xb45ae5A41645904D2Ced440F9a49Eb2330423FdC",
+      "txHash": "0x48e0af9b47cb42c2a3448afe622d767bbe827688ce98acfe2d43d43a3480a24e",
       "kind": "transparent"
     },
     {
-      "address": "0x3313592e9069BAdc47CA1C2eCa0E5fc5219De7B3",
-      "txHash": "0xc5b58daa23d4792ca1fecc0e3c5673053ce3cf097cbabf20b885d4fed0245597",
+      "address": "0x1BcfFdbc19e672820593370e27cad122DC50b6fC",
+      "txHash": "0xc8c383a11080f013686029a36a16a07bf83fa88bd7997576e1fa3934438f0da1",
       "kind": "transparent"
     },
     {
-      "address": "0xc73Cd8aa84C7277D3E966c41ef59a33472780f7a",
-      "txHash": "0xc1613a9cb768d6c5cf5ba57bae34efb68a03c4c12568f08098deede4da76e0c9",
+      "address": "0x1C5dABa6Cd8eb4f1888E5278544A796a46a8765a",
+      "txHash": "0xf56845014af10071cbb6bf60de6253d2d9328f1ed7236d84ec221b12e7c44d14",
       "kind": "transparent"
     },
     {
-      "address": "0x052cF88C376e26bCF3acb399dbDbC74226368DCB",
-      "txHash": "0xa110323f56a9d4f965d51219d7c4018d8f2e259eb9693566e99959a5edd39051",
+      "address": "0x8Ea6B82800167F923d5e067C37F095ACEbE838A1",
+      "txHash": "0x0e8c342b9dfaa838b340d0d89d6b0bb338b08a0875895be7859629e6208bfe6b",
       "kind": "transparent"
     },
     {
-      "address": "0x3aef485f68C2A422E07cA461364A49F0D19C665A",
-      "txHash": "0x4313ffaaee0055c52728c61639c4a8885dd95bee6bf2a04835d9a62d007a63f0",
+      "address": "0xeF2781091aB0DA15fB803AE08f3c9d85cdfDABdE",
+      "txHash": "0xc57b184cf6435041d1fc6a9fd245d716b3495d442c0f8bc0d25f6fd943ad15db",
       "kind": "transparent"
     },
     {
-      "address": "0x6a79eA9aD6Bd51cde359f3C26BCAC1346aDB1eF9",
-      "txHash": "0x63e3ee10996cea00d64a82375520cbbe0dfda5dbedebb93b6af6937d3ce93e32",
+      "address": "0x365C41549FC0e606C3A0bF1173c7Abf69d566E79",
+      "txHash": "0xa4c17506dbd6cecfc552cdbdbdd5d3426b195aaf78b7efa01668dc6a856a1bec",
       "kind": "transparent"
     },
     {
-      "address": "0x7351F8e92ee0dB7848327d6D9fe424DdBDAe8142",
-      "txHash": "0xdfa761e0ccf0676eeb118a999c002a8c93513ca28a1f51b618601054d741c233",
+      "address": "0xD2A7946b046e34F6e6F1dc4b262F98879a500eAF",
+      "txHash": "0x64e26c0e0a8152c350c31cafd6f8c0d38102c3f0c0ea55a892dc47686aea20ef",
       "kind": "transparent"
     },
     {
-      "address": "0xC8FC64CAFd37FE947298892697CD05A2986d13e8",
-      "txHash": "0x804205a9212e63d7a58954d787c3756f6376466ddcf922809e40bd60042cde69",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x19aAD8c2AF783792886a6cc516bE83a816D40650",
-      "txHash": "0x0607ce7645591d4c9f34507945c69c5d680f402605b5bb67c64040efe5713e0d",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x63a397c49A9fDeAb7dcC75943449C49e18AdBf11",
-      "txHash": "0x60fef4f44820be685504d9a98f386c4cc043eeaa7a09d49ae2aa1e5e991479cf",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x5411349C7D1EDA8Eb7D9bF2D39aAaef26739D2Bf",
-      "txHash": "0x73c5d15f1c89532ea26e15fd867f59d5227a7efd567998a0267a65d1a07cc71b",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x6401b3D4a95cCe454De3c2b124094650ecbcfd60",
-      "txHash": "0x2c984843ea1c1097afd6cbcd14146024b98b73caf1773ff3bd8a0538cce98864",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x4029169a4e0ce62E6A744135F6D9D4235De13793",
-      "txHash": "0x138bafb46099d40eac84d2f04a831d3eae5056579d076078e302fee7adaf67e4",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x0b8D34f591906179b032a9125001B0e735e00eA7",
-      "txHash": "0xd29f5baf0fa6ea0861d5e8b22d32b4c45fb931ed8430c37fbb6dab4ba0090a69",
+      "address": "0xf93749a44d1C87dE9e61b0A9Ad8371820721Efe7",
+      "txHash": "0x5c9b87d0954df444e34dab34556df02d91130ced121b694b029706bf91191fa8",
       "kind": "transparent"
     }
   ],
   "impls": {
     "9b1b200323f755fffd919a772d6ed29206322f8025f723ff4173dac622db3258": {
-      "address": "0x1F42702c7440bf179EFE5Db63A09C3891756133d",
-      "txHash": "0x6d08e55f54473ac3886470df8fc5833e8da521fdc83906ccf31101ffcbdcc62e",
+      "address": "0x81C45FC0334778f82691aE89b4bfD90e3772F3Fc",
+      "txHash": "0x749e6bcda56f5cec2aeb584d544a10a59a20b84b7ddd6ede5f12471cf64253d8",
       "layout": {
         "storage": [
           {
@@ -182,8 +152,8 @@
       }
     },
     "163a0128c29f69ed83e11d4215fc6141c67ca9c10e2e2d2122e5a19cbfe6ba69": {
-      "address": "0x6D6F0Ca08fd879EfB5962bDD566ADF92Da98D7aD",
-      "txHash": "0x4fc9496516f9486519d78143414f1fb669598b93534c5a386e8a8e0dec4ccbdd",
+      "address": "0x6595FC7A412c3bff0338e3EEfbf76C6325c01C63",
+      "txHash": "0x1e1ef6b94810ee60510022637a6787f358c53c811e5db8cad8fd6f4dd386961a",
       "layout": {
         "storage": [
           {
@@ -455,8 +425,8 @@
       }
     },
     "f134e6eec5cda99ee91db2acdaaa7bc21d5bd4cb36cabd7bb3872d1ad8296705": {
-      "address": "0xd91122c93Ce2A3603e65887054df8F0b0e0861B8",
-      "txHash": "0xb4a6336cc347befecde9a092420b5f8bd1e43e6542c1dbb634198cf78fcb63e8",
+      "address": "0x737b13a05668d1018Ddead9Bbf584710Bce8b5b3",
+      "txHash": "0xf9020b27f39d356495737daf7ea783f7a47acf0cf0a733d866a26799b9825434",
       "layout": {
         "storage": [
           {
@@ -499,7 +469,7 @@
           {
             "contract": "Skills",
             "label": "skills",
-            "type": "t_array(t_struct(Skill)9685_storage)dyn_storage",
+            "type": "t_array(t_struct(Skill)9740_storage)dyn_storage",
             "src": "..\\project:\\contracts\\Skills.sol:27"
           },
           {
@@ -517,15 +487,15 @@
           {
             "contract": "Skills",
             "label": "avatarSkills",
-            "type": "t_mapping(t_uint256,t_array(t_struct(Skill)9685_storage)dyn_storage)",
+            "type": "t_mapping(t_uint256,t_array(t_struct(Skill)9740_storage)dyn_storage)",
             "src": "..\\project:\\contracts\\Skills.sol:33"
           }
         ],
         "types": {
-          "t_array(t_struct(Skill)9685_storage)dyn_storage": {
+          "t_array(t_struct(Skill)9740_storage)dyn_storage": {
             "label": "struct Skills.Skill[]"
           },
-          "t_struct(Skill)9685_storage": {
+          "t_struct(Skill)9740_storage": {
             "label": "struct Skills.Skill",
             "members": [
               {
@@ -560,7 +530,7 @@
           "t_uint16": {
             "label": "uint16"
           },
-          "t_mapping(t_uint256,t_array(t_struct(Skill)9685_storage)dyn_storage)": {
+          "t_mapping(t_uint256,t_array(t_struct(Skill)9740_storage)dyn_storage)": {
             "label": "mapping(uint256 => struct Skills.Skill[])"
           },
           "t_mapping(t_bytes32,t_struct(RoleData)34_storage)": {
@@ -601,8 +571,8 @@
       }
     },
     "84aad129910df8a479af592077fdffd1155d610e989a012565e500c0440854b5": {
-      "address": "0xfB677F5AC40b2D8F476804262B4167CCf49a2358",
-      "txHash": "0x78be6a3d02ee0fce50f92f740f13c2bbda60514d8bf723590a6fffa414f22311",
+      "address": "0x21FF0eDedBb2F2fb1A7Ec97934A70577Aea2b5ac",
+      "txHash": "0x70dad7695da46b93176911462e7955e90dcdc284f5bc96c6684130002b991516",
       "layout": {
         "storage": [
           {
@@ -645,7 +615,7 @@
           {
             "contract": "Events",
             "label": "events",
-            "type": "t_array(t_struct(Event)9338_storage)dyn_storage",
+            "type": "t_array(t_struct(Event)9393_storage)dyn_storage",
             "src": "..\\project:\\contracts\\Events.sol:35"
           },
           {
@@ -663,15 +633,15 @@
           {
             "contract": "Events",
             "label": "eventRewardItems",
-            "type": "t_mapping(t_uint256,t_array(t_struct(RewardItem)9343_storage)dyn_storage)",
+            "type": "t_mapping(t_uint256,t_array(t_struct(RewardItem)9398_storage)dyn_storage)",
             "src": "..\\project:\\contracts\\Events.sol:41"
           }
         ],
         "types": {
-          "t_array(t_struct(Event)9338_storage)dyn_storage": {
+          "t_array(t_struct(Event)9393_storage)dyn_storage": {
             "label": "struct Events.Event[]"
           },
-          "t_struct(Event)9338_storage": {
+          "t_struct(Event)9393_storage": {
             "label": "struct Events.Event",
             "members": [
               {
@@ -715,13 +685,13 @@
           "t_mapping(t_uint256,t_uint8)": {
             "label": "mapping(uint256 => uint8)"
           },
-          "t_mapping(t_uint256,t_array(t_struct(RewardItem)9343_storage)dyn_storage)": {
+          "t_mapping(t_uint256,t_array(t_struct(RewardItem)9398_storage)dyn_storage)": {
             "label": "mapping(uint256 => struct Events.RewardItem[])"
           },
-          "t_array(t_struct(RewardItem)9343_storage)dyn_storage": {
+          "t_array(t_struct(RewardItem)9398_storage)dyn_storage": {
             "label": "struct Events.RewardItem[]"
           },
-          "t_struct(RewardItem)9343_storage": {
+          "t_struct(RewardItem)9398_storage": {
             "label": "struct Events.RewardItem",
             "members": [
               {
@@ -771,9 +741,9 @@
         }
       }
     },
-    "201504c064c962f250095435402e456d711e73f7e9ea1853ebd8d2863e39ac42": {
-      "address": "0x9559Ee07ce3B4273cc09AB81B7dFd2e941226936",
-      "txHash": "0x807d5c79103b23440393f1db220441fe3d67360d15d4595afdbb29aabf05dc84",
+    "c00b7f277a1a01ff75197a010a22b6bd45d8e7e30100d45617400f2719dd57d4": {
+      "address": "0x7a3667a7AbFA8D0057DDD98d39A893b04Ba03cE9",
+      "txHash": "0xb2258f2ed1bfa4cb3eddc4d2ddd4af258de5d65b995b583c084821a1fed49f51",
       "layout": {
         "storage": [
           {
@@ -828,7 +798,7 @@
           {
             "contract": "Cardinal",
             "label": "priceOracle",
-            "type": "t_contract(IPriceOracle)10259",
+            "type": "t_contract(IPriceOracle)10314",
             "src": "..\\project:\\contracts\\Cardinal.sol:45"
           },
           {
@@ -840,13 +810,13 @@
           {
             "contract": "Cardinal",
             "label": "skills",
-            "type": "t_contract(Skills)9958",
+            "type": "t_contract(Skills)10013",
             "src": "..\\project:\\contracts\\Cardinal.sol:48"
           },
           {
             "contract": "Cardinal",
             "label": "events",
-            "type": "t_contract(Events)9522",
+            "type": "t_contract(Events)9577",
             "src": "..\\project:\\contracts\\Cardinal.sol:49"
           },
           {
@@ -914,6 +884,12 @@
             "label": "adventureEvents",
             "type": "t_mapping(t_uint256,t_array(t_uint256)dyn_storage)",
             "src": "..\\project:\\contracts\\Cardinal.sol:65"
+          },
+          {
+            "contract": "Cardinal",
+            "label": "avatarAdvId",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "src": "..\\project:\\contracts\\Cardinal.sol:66"
           }
         ],
         "types": {
@@ -950,16 +926,16 @@
           "t_contract(IERC20)3116": {
             "label": "contract IERC20"
           },
-          "t_contract(IPriceOracle)10259": {
+          "t_contract(IPriceOracle)10314": {
             "label": "contract IPriceOracle"
           },
           "t_contract(Avatars)7465": {
             "label": "contract Avatars"
           },
-          "t_contract(Skills)9958": {
+          "t_contract(Skills)10013": {
             "label": "contract Skills"
           },
-          "t_contract(Events)9522": {
+          "t_contract(Events)9577": {
             "label": "contract Events"
           },
           "t_string_storage": {

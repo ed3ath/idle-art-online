@@ -63,6 +63,7 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 	mapping(uint256 => uint64) avatarCooldowns;
 	mapping(uint256 => uint256) attributePoints;
 	mapping(uint256 => uint256[]) adventureEvents;
+	mapping(uint256 => uint256) avatarAdvId;
 
 	// events
 	event NewAdventure(
@@ -293,7 +294,18 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 			advDuration,
 			uint64(block.timestamp)
 		);
+		avatarAdvId[avatarId] = advId;
 		return advId;
+	}
+
+	function getAvatarAdvId(uint256 avatarId) public view returns(uint256) {
+		return avatarAdvId[avatarId];
+	}
+
+	function endAdventure(uint256 avatarId) public onlyNonContract avatarOwner(avatarId) {
+		avatarAdvId[avatarId] = 0;
+		avatars.setNftVar(avatarId, avatars.VAR_STATUS(), 0);
+		avatarCooldowns[avatarId] = 0;
 	}
 
 	function getAdventureEvents(uint256 advId)

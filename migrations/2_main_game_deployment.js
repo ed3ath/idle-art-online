@@ -12,7 +12,7 @@ const keyHash = "0508bed9fd4f78f10478c995115fdf0b087b42d661e8c6f27710c035187b029
 
 module.exports = async function (deployer, network, accounts) {
   if (network === 'development') {
-    const oracle = await deployProxy(BasicPriceOracle, [], { deployer });    
+    const oracle = await deployProxy(BasicPriceOracle, [], { deployer });
     const corToken = await deployer.deploy(CorToken);
     const avatars = await deployProxy(Avatars, [keyHash], { deployer });
     const skills = await deployProxy(Skills, [keyHash], { deployer });
@@ -24,6 +24,5 @@ module.exports = async function (deployer, network, accounts) {
     await avatars.grantRole(await avatars.GAME_MASTER(), cardinal.address);
     await skills.grantRole(await skills.GAME_MASTER(), cardinal.address);
     await events.grantRole(await events.GAME_MASTER(), cardinal.address);
-
   }
 };
