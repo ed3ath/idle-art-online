@@ -66,10 +66,15 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 	mapping(uint256 => uint256) avatarAdvId;
 
 	// events
-	event NewAdventure(
+	event AdventureStarted(
 		uint256 advId,
 		uint256 avatarId,
 		uint64 duration,
+		uint64 timestamp
+	);
+	event AdventureEnded(
+		uint256 advId,
+		uint256 avatarId,
 		uint64 timestamp
 	);
 
@@ -220,7 +225,7 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 			Adventure(advId, avatarId, advDuration, uint64(block.timestamp))
 		);
 		avatarCooldowns[avatarId] = uint64(block.timestamp + advDuration);
-		emit NewAdventure(
+		emit AdventureStarted(
 			advId,
 			avatarId,
 			advDuration,
@@ -239,9 +244,11 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		onlyNonContract
 		avatarOwner(avatarId)
 	{
+		uint256 advId = avatarAdvId[avatarId];
 		avatarAdvId[avatarId] = 0;
 		avatars.setNftVar(avatarId, avatars.VAR_STATUS(), 0);
 		avatarCooldowns[avatarId] = 0;
+		emit AdventureEnded(advId, avatarId, uint64(block.timestamp));
 	}
 
 	function createAdventureRandomEvent(uint256 advId, uint8 eventType, uint256 rewardCor, uint256 rewardExp) public restricted {

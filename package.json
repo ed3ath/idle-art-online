@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "truffle-config.js",
   "scripts": {
-    "prepare": "npm run contract:deploy && npm run copy:address",
+    "start:dev": "nodemon src/main.js",
+    "start:prepare": "npm run contract:deploy && npm run copy:address",
     "contract:test": "truffle test",
     "contract:build": "truffle compile",
     "contract:deploy": "truffle migrate --reset -f 1 --to 3",
@@ -16,12 +17,23 @@
   "description": "Idle Art Online is a blockchain game inspired by Sword Art Online, a fantasy MMORPG anime. Idle Art Online is a web based idle NFT game. The goal of the game is to reward players after staking their NFTs.",
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
-    "abdk-libraries-solidity": "^3.0.0"
+    "abdk-libraries-solidity": "^3.0.0",
+    "mongoose": "^6.4.0",
+    "mongoose-timestamp": "^0.6.0",
+    "restify": "^8.6.1",
+    "restify-errors": "^8.0.2"
   },
   "devDependencies": {
     "@openzeppelin/contracts-upgradeable": "^4.6.0",
     "@openzeppelin/truffle-upgrades": "^1.15.0",
     "@openzeppelin/upgrades-core": "^1.16.1",
+    "eslint": "^8.18.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.3",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-truffle": "^0.3.1",
+    "nodemon": "^2.0.16",
     "prettier": "^2.6.2",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "truffle": "^5.5.18",
