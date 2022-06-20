@@ -58,7 +58,7 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 		4 = perception
 		5 = strength
 	*/
-	mapping(uint256 => mapping(uint16 => uint256)) attributes; // avatarID => [attribute => value]
+	mapping(uint256 => mapping(uint8 => uint16)) attributes; // avatarID => [attribute => value]
 	/*
 		slot index
 		0 = weapon
@@ -124,12 +124,9 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 
 		uint256 seed = RandomUtil.getRandomSeed(keyHash, minter, avatarId);
 
-		for (uint16 i = 0; i < 6; i++) {
-			attributes[avatarId][i] = Common._getRandomStat(
-				_minStat,
-				_maxStat,
-				seed,
-				i
+		for (uint8 i = 0; i < 6; i++) {
+			attributes[avatarId][i] = uint16(
+				Common._getRandomStat(_minStat, _maxStat, seed, i)
 			);
 		}
 
@@ -142,7 +139,7 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 				avatarId,
 				rarity,
 				gender,
-				0,
+				1,
 				0,
 				genes,
 				uint64(block.timestamp),
@@ -217,7 +214,11 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 		_mintAvatar(minter, avatarId, rarity, gender, genes, 0);
 	}
 
-	function mintFreeAvatar(address minter) external restricted {
+	function mintFreeAvatar(address minter)
+		external
+		restricted
+		returns (uint256)
+	{
 		uint256 avatarId = avatars.length;
 		uint8 rarity = 0; // free mints are always common
 		uint256 seed = RandomUtil.getRandomSeed(keyHash, minter, avatarId);
@@ -232,6 +233,7 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 			Common._getRandomGene(seed, 6, 5)
 		);
 		_mintAvatar(minter, avatarId, rarity, gender, genes, 1);
+		return avatarId;
 	}
 
 	function getAvatar(uint256 avatarId) public view returns (Avatar memory) {
@@ -253,10 +255,10 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 	function getAttributes(uint256 avatarId)
 		public
 		view
-		returns (uint256[] memory)
+		returns (uint16[] memory)
 	{
-		uint256[] memory attribute = new uint256[](6);
-		for (uint16 i = 0; i < 6; i++) {
+		uint16[] memory attribute = new uint16[](6);
+		for (uint8 i = 0; i < 6; i++) {
 			attribute[i] = attributes[avatarId][i];
 		}
 		return attribute;
@@ -264,10 +266,23 @@ contract Avatars is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
 
 	function setAttributes(
 		uint256 avatarId,
-		uint16 attributeId,
-		uint256 value
+		uint8 attributeId,
+		uint16 value
 	) external restricted {
 		attributes[avatarId][attributeId] = value;
+	}
+
+	// attribute bonus
+	function getHitPoints(uint256 avatarId) public view returns (uint32) {
+		uint16 constitution = attributes[avatarId][1];
+		uint16 level = avatars[avatarId].level;
+		return
+			uint32(
+				((level.div(100).mul(90)).div(2))
+					.mul((level.add(1).div(4)))
+					.mul((constitution.add(1).div(50)))
+					.add(constitution.mul(10))
+			);
 	}
 
 	function gainExp(uint256 avatarId, uint256 exp) external restricted {

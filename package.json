@@ -6,8 +6,8 @@
     "web:start": "cd frontend && npm start",
     "contract:test": "truffle test",
     "contract:build": "truffle compile",
-    "contract:deploy": "truffle migrate --reset -f 1 --to 2",
-    "contract:upgrade": "truffle migrate -f 3 --to 3",
+    "contract:deploy": "truffle migrate --reset -f 1 --to 3",
+    "contract:upgrade": "truffle migrate -f 4 --to 4",
     "contract:prettier": "prettier --write contracts/*.sol",
     "copy:address": "node scripts/copy-address.js"
   },

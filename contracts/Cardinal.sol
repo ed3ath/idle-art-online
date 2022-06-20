@@ -55,7 +55,7 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 
 	// mappings
 	mapping(address => uint256) lastBlockNumberCalled;
-	mapping(address => uint8) freeClaims;
+	mapping(address => uint256) freeClaims;
 
 	mapping(uint256 => mapping(uint256 => uint256)) gameVars;
 	mapping(uint256 => mapping(uint256 => uint256)) parties;
@@ -132,79 +132,6 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		return uint64(duration * mult);
 	}
 
-	function _genPredefinedAdventureEvents(
-		uint256 advId,
-		uint256 seed,
-		uint64 duration
-	) internal {
-		uint16 eventCounts = uint8(
-			RandomUtil.randomSeededMinMax(duration / 1800, duration / 900, seed)
-		);
-
-		for (uint8 i = 0; i < eventCounts; i++) {
-			uint256 rewardCor = uint256(
-				RandomUtil.randomSeededMinMax(
-					uint256(
-						gameVars[VAR_REWARD_COR][MODE_ADVENTURE].div(100).mul(
-							30
-						)
-					),
-					uint256(gameVars[VAR_REWARD_COR][MODE_ADVENTURE]),
-					RandomUtil.combineSeeds(seed, i + 1)
-				)
-			);
-			uint256 rewardExp = uint256(
-				RandomUtil.randomSeededMinMax(
-					uint32(
-						gameVars[VAR_REWARD_EXP][MODE_ADVENTURE].div(100).mul(
-							30
-						)
-					),
-					uint32(gameVars[VAR_REWARD_EXP][MODE_ADVENTURE]),
-					RandomUtil.combineSeeds(seed, i + 2)
-				)
-			);
-			uint8 eventType = RandomUtil.randomSeededMinMax(
-				0,
-				100,
-				RandomUtil.combineSeeds(seed, i + 3)
-			) < 50
-				? 0
-				: 1;
-			uint64 timestamp = uint64(
-				RandomUtil.randomSeededMinMax(
-					120,
-					duration,
-					RandomUtil.combineSeeds(seed, i + 4)
-				)
-			);
-			_createAdventureEvent(
-				advId,
-				eventType,
-				rewardCor,
-				rewardExp,
-				uint64(block.timestamp + timestamp)
-			);
-		}
-	}
-
-	function _createAdventureEvent(
-		uint256 advId,
-		uint8 eventType,
-		uint256 rewardCor,
-		uint256 rewardExp,
-		uint64 timestamp
-	) internal {
-		uint256 eventId = events.createEvent(
-			MODE_ADVENTURE,
-			eventType,
-			rewardCor,
-			rewardExp,
-			timestamp
-		);
-		adventureEvents[advId].push(eventId);
-	}
-
 	// public functions
 	function initialize(
 		string memory _keyHash,
@@ -264,8 +191,12 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 			avatars.balanceOf(msg.sender) < maxOwnedAvatar,
 			"MNA" //Maximum number of avatars reached
 		);
-		avatars.mintFreeAvatar(msg.sender);
-		freeClaims[msg.sender] = 1;
+		uint256 avatarId = avatars.mintFreeAvatar(msg.sender);
+		freeClaims[msg.sender] = avatarId;
+	}
+
+	function getFreeMintAvatarId(address minter) public view returns (uint256) {
+		return freeClaims[minter];
 	}
 
 	function doAdventure(
@@ -279,15 +210,16 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 			"ACT" //Avatar is currently tired
 		);
 		uint64 advDuration = _durationToSeconds(durationType, duration);
-		require(advDuration <= 604800, "DL7"); //Duration should not be longer than 7 days
+		require(advDuration <= 86400, "DL1"); //Duration should not be longer than 1 day
 		uint256 advId = adventures.length;
-		uint256 seed = RandomUtil.getRandomSeed(keyHash, msg.sender, advId);
+		if (advId == 0) {
+			adventures.push(Adventure(0, 0, 0, uint64(0)));
+		}
 		avatars.setNftVar(avatarId, avatars.VAR_STATUS(), 1);
 		adventures.push(
 			Adventure(advId, avatarId, advDuration, uint64(block.timestamp))
 		);
 		avatarCooldowns[avatarId] = uint64(block.timestamp + advDuration);
-		_genPredefinedAdventureEvents(advId, seed, advDuration);
 		emit NewAdventure(
 			advId,
 			avatarId,
@@ -298,14 +230,33 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		return advId;
 	}
 
-	function getAvatarAdvId(uint256 avatarId) public view returns(uint256) {
+	function getAvatarAdvId(uint256 avatarId) public view returns (uint256) {
 		return avatarAdvId[avatarId];
 	}
 
-	function endAdventure(uint256 avatarId) public onlyNonContract avatarOwner(avatarId) {
+	function endAdventure(uint256 avatarId)
+		public
+		onlyNonContract
+		avatarOwner(avatarId)
+	{
 		avatarAdvId[avatarId] = 0;
 		avatars.setNftVar(avatarId, avatars.VAR_STATUS(), 0);
 		avatarCooldowns[avatarId] = 0;
+	}
+
+	function createAdventureRandomEvent(uint256 advId, uint8 eventType, uint256 rewardCor, uint256 rewardExp) public restricted {
+		require(advId > 0 && advId < adventures.length, 'IID'); // Invalid adventure ID;
+		require(rewardCor <= gameVars[VAR_REWARD_COR][MODE_ADVENTURE], 'RCE'); // Reward cor exceeded the max limit
+		require(rewardExp <= gameVars[VAR_REWARD_EXP][MODE_ADVENTURE], 'REE'); // Reward exp exceeded the max limit
+
+		uint256 eventId = events.createEvent(
+			MODE_ADVENTURE,
+			eventType,
+			rewardCor,
+			rewardExp,
+			uint64(block.timestamp)
+		);
+		adventureEvents[advId].push(eventId);
 	}
 
 	function getAdventureEvents(uint256 advId)
@@ -337,8 +288,8 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 
 	function setAttributes(
 		uint256 avatarId,
-		uint16 attributeId,
-		uint256 value
+		uint8 attributeId,
+		uint16 value
 	) public onlyNonContract avatarOwner(avatarId) validAttribute(attributeId) {
 		require(
 			attributePoints[avatarId] >= value,
@@ -364,7 +315,7 @@ contract Cardinal is Initializable, AccessControlUpgradeable {
 		uint256[] memory skillRequirement = skills.getSkillRequirements(
 			skillId
 		);
-		uint256[] memory attributes = avatars.getAttributes(avatarId);
+		uint16[] memory attributes = avatars.getAttributes(avatarId);
 		uint8 canLearn = 1;
 		for (uint256 i; i < skillRequirement.length; i++) {
 			if (skillRequirement[i] > 0) {
