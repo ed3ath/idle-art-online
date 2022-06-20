@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "truffle-config.js",
   "scripts": {
+    "prepare": "npm run contract:deploy && npm run copy:address",
     "web:start": "cd frontend && npm start",
     "contract:test": "truffle test",
     "contract:build": "truffle compile",
