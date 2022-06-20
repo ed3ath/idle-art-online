@@ -4,11 +4,10 @@ A blockchain game inspired by Sword Art Online, a fantasy MMORPG anime.  Idle Ar
 ### Requirements for Local Deployment
 1. [Ganache](https://trufflesuite.com/ganache/)
 
-### Setup
+### Deploy
 ```
 $ npm install
 $ npm run contract:deploy
-$ npm run web:start
 ```
 
 ### Run Truffle Test
